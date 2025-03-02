@@ -1,2 +1,3 @@
-# microservice-nestjs-graphQL-app
+# Reliable expense - hasty expense tracker
+
 In dev..
