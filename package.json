@@ -2,7 +2,7 @@
    "name": "reliable-expense",
    "version": "1.0.0",
    "description": "In dev..",
-   "main": "index.js",
+   "main": "backend/src/index.js",
    "scripts": {
       "start": "node backend/src/index.js",
       "dev": "nodemon backend/src/index.js",
