@@ -3,11 +3,21 @@ import User from "../models/user.model.js";
 
 const userResolver = {
    Query: {
-      users: () => {
-         return users;
+      authUser: async (_, __, context) => {
+         try {
+            return await context.getUser();
+         } catch (error) {
+            console.error(error);
+            throw new Error(error.message || "Error while getting auth user");
+         }
       },
-      user: (_, { userId }) => {
-         return users.find((user) => user._id === userId);
+      user: async (_, { userId }) => {
+         try {
+            return await User.findById(userId);
+         } catch (error) {
+            console.error(error);
+            throw new Error(error.message || "Error while getting user");
+         }
       },
    },
    Mutation: {
