@@ -4,6 +4,7 @@ import Login from "./pages/Login";
 import SignUp from "./pages/SignUp";
 import Transaction from "./pages/Transaction";
 import _404 from "./pages/_404";
+import Header from "./components/Header";
 
 function App() {
    const authUser = true;
