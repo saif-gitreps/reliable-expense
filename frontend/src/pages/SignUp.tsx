@@ -14,7 +14,9 @@ const SignUpPage = () => {
       gender: "",
    });
 
-   const [signUp, { loading, error }] = useMutation(SIGN_UP);
+   const [signUp, { loading }] = useMutation(SIGN_UP, {
+      refetchQueries: ["GetAuthenticatedUser"],
+   });
 
    const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
       const { name, value, type } = e.target;
@@ -34,6 +36,9 @@ const SignUpPage = () => {
 
    const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
       e.preventDefault();
+      if (!signUpData.name || !signUpData.username || !signUpData.password || !signUp) {
+         return toast.error("Please fill all fields");
+      }
       try {
          await signUp({
             variables: {
@@ -42,7 +47,7 @@ const SignUpPage = () => {
          });
       } catch (error) {
          console.log("Error: ", error);
-         toast.error(error.message);
+         toast.error("Failed to sign up");
       }
    };
 
