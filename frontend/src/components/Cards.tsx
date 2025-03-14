@@ -5,18 +5,28 @@ import { FaSackDollar } from "react-icons/fa6";
 import { FaTrash } from "react-icons/fa";
 import { HiPencilAlt } from "react-icons/hi";
 import { Link } from "react-router-dom";
+import { useQuery } from "@apollo/client";
+import { GET_TRANSACTIONS } from "../graphql/queries/transaction.query";
 
 function Cards() {
+   const { data, loading } = useQuery(GET_TRANSACTIONS);
+
+   if (loading) {
+      return <p>Loading...</p>;
+   }
+
    return (
       <div className="w-full px-10 min-h-[40vh]">
          <p className="text-5xl font-bold text-center my-10">History</p>
          <div className="w-full grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 justify-start mb-20">
-            <Card cardType={"saving"} />
-            <Card cardType={"expense"} />
-            <Card cardType={"investment"} />
-            <Card cardType={"investment"} />
-            <Card cardType={"saving"} />
-            <Card cardType={"expense"} />
+            {!loading &&
+               data.transactions.map((transaction: CardProps["transaction"]) => (
+                  <Card key={transaction._id} transaction={transaction} />
+               ))}
+
+            {!loading && data.transactions.length === 0 && (
+               <p className="text-center text-2xl font-bold">No transactions found</p>
+            )}
          </div>
       </div>
    );
@@ -28,10 +38,27 @@ const categoryColorMap = {
    investment: "from-blue-700 to-blue-400",
 };
 
-type CardType = keyof typeof categoryColorMap;
+type CardProps = {
+   transaction: {
+      _id: string;
+      description: string;
+      paymentType: string;
+      category: string;
+      amount: string;
+      location: string;
+      date: string;
+      user: {
+         name: string;
+         username: string;
+         profilePicture: string;
+      };
+   };
+};
 
-function Card({ cardType }: { cardType: CardType }) {
-   const cardClass = categoryColorMap[cardType];
+function Card({ transaction }: CardProps) {
+   const { category, amount, location, date, paymentType, description } = transaction;
+
+   const cardClass = categoryColorMap[category];
 
    return (
       <div className={`rounded-md p-4 bg-gradient-to-br ${cardClass}`}>
