@@ -1,22 +1,13 @@
 import { useMutation, useQuery } from "@apollo/client";
-import { useEffect, useState } from "react";
+import React, { useState } from "react";
 import { useParams } from "react-router-dom";
-import {
-   GET_TRANSACTION,
-   GET_TRANSACTION_STATISTICS,
-} from "../graphql/queries/transaction.query";
-import { UPDATE_TRANSACTION } from "../graphql/mutations/transcation.mutation";
-import toast from "react-hot-toast";
-import TransactionFormSkeleton from "../components/skeletons/TransactionFormSkeleton";
+import { GET_TRANSACTION_STATISTICS } from "../graphql/queries/transaction.query";
 
-const TransactionPage = () => {
+function Transaction() {
    const { id } = useParams();
    const { loading, data } = useQuery(GET_TRANSACTION, {
       variables: { id: id },
    });
-
-   console.log("Transaction", data);
-
    const [updateTransaction, { loading: loadingUpdate }] = useMutation(
       UPDATE_TRANSACTION,
       {
@@ -26,35 +17,22 @@ const TransactionPage = () => {
    );
 
    const [formData, setFormData] = useState({
-      description: data?.transaction?.description || "",
-      paymentType: data?.transaction?.paymentType || "",
-      category: data?.transaction?.category || "",
-      amount: data?.transaction?.amount || "",
-      location: data?.transaction?.location || "",
-      date: data?.transaction?.date || "",
+      description: "",
+      paymentType: "",
+      category: "",
+      amount: "",
+      location: "",
+      date: "",
    });
 
-   const handleSubmit = async (e) => {
+   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
       e.preventDefault();
-      const amount = parseFloat(formData.amount); // convert amount to number bc by default it is string
-      // and the reason it's coming from an input field
-      try {
-         await updateTransaction({
-            variables: {
-               input: {
-                  ...formData,
-                  amount,
-                  transactionId: id,
-               },
-            },
-         });
-         toast.success("Transaction updated successfully");
-      } catch (error) {
-         toast.error(error.message);
-      }
+      console.log("formData", formData);
    };
 
-   const handleInputChange = (e) => {
+   const handleInputChange = (
+      e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
+   ) => {
       const { name, value } = e.target;
       setFormData((prevFormData) => ({
          ...prevFormData,
@@ -62,20 +40,8 @@ const TransactionPage = () => {
       }));
    };
 
-   useEffect(() => {
-      if (data) {
-         setFormData({
-            description: data?.transaction?.description,
-            paymentType: data?.transaction?.paymentType,
-            category: data?.transaction?.category,
-            amount: data?.transaction?.amount,
-            location: data?.transaction?.location,
-            date: new Date(+data.transaction.date).toISOString().substr(0, 10),
-         });
-      }
-   }, [data]);
-
-   if (loading) return <TransactionFormSkeleton />;
+   //if (loading)
+   //return <TransactionFormSkeleton />;
 
    return (
       <div className="h-screen max-w-4xl mx-auto flex flex-col items-center">
@@ -235,12 +201,33 @@ const TransactionPage = () => {
                className="text-white font-bold w-full rounded px-4 py-2 bg-gradient-to-br
           from-pink-500 to-pink-500 hover:from-pink-600 hover:to-pink-600"
                type="submit"
-               disabled={loadingUpdate}
             >
-               {loadingUpdate ? "Updating..." : "Update Transaction"}
+               Update Transaction
             </button>
          </form>
       </div>
    );
-};
-export default TransactionPage;
+}
+
+function TransactionFormSkeleton() {
+   return (
+      <div className="h-screen max-w-xl mx-auto py-10">
+         <h3 className="h-6 bg-gray-200 rounded animate-pulse"></h3>
+
+         <ul className="mt-5 flex gap-3">
+            <li className="w-full h-6 bg-gray-200 rounded dark:bg-gray-700 animate-pulse"></li>
+            <li className="w-full h-6 bg-gray-200 rounded dark:bg-gray-700 animate-pulse"></li>
+            <li className="w-full h-6 bg-gray-200 rounded dark:bg-gray-700 animate-pulse"></li>
+         </ul>
+         <ul className="mt-5 flex gap-3">
+            <li className="w-full h-6 bg-gray-200 rounded dark:bg-gray-700 animate-pulse"></li>
+            <li className="w-full h-6 bg-gray-200 rounded dark:bg-gray-700 animate-pulse"></li>
+         </ul>
+         <ul className="mt-5 flex gap-3">
+            <li className="w-full h-6 bg-gray-200 rounded dark:bg-gray-700 animate-pulse"></li>
+         </ul>
+      </div>
+   );
+}
+
+export default Transaction;
