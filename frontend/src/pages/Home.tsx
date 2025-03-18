@@ -5,37 +5,69 @@ import { MdLogout } from "react-icons/md";
 import TransactionForm from "../components/TransactionForm";
 import Cards from "../components/Cards";
 import toast from "react-hot-toast";
-import { useMutation } from "@apollo/client";
+import { useMutation, useQuery, useQuery } from "@apollo/client";
 import { LOGOUT } from "../graphql/mutations/user.mutation";
+import { GET_TRANSACTION_STATISTICS } from "../graphql/queries/transaction.query";
+import { useEffect } from "react";
 
 ChartJS.register(ArcElement, Tooltip, Legend);
 
 function HomePage() {
-   const chartData = {
-      labels: ["Saving", "Expense", "Investment"],
+   const { data } = useQuery(GET_TRANSACTION_STATISTICS);
+   const { data: authUserData } = useQuery(GET_AUTHENTICATED_USER);
+
+   const [chartData, setChartData] = useState({
+      labels: [],
       datasets: [
          {
-            label: "%",
-            data: [13, 8, 3],
-            backgroundColor: [
-               "rgba(75, 192, 192)",
-               "rgba(255, 99, 132)",
-               "rgba(54, 162, 235)",
-            ],
-            borderColor: [
-               "rgba(75, 192, 192)",
-               "rgba(255, 99, 132)",
-               "rgba(54, 162, 235, 1)",
-            ],
+            label: "$",
+            data: [],
+            backgroundColor: [],
+            borderColor: [],
             borderWidth: 1,
             borderRadius: 30,
             spacing: 10,
             cutout: 130,
          },
       ],
-   };
+   });
 
-   const [logout, { loading }] = useMutation(LOGOUT, {
+   useEffect(() => {
+      if (data?.categoryStatistics) {
+         const categories = data.categoryStatistics.map((stat: string) => stat.category);
+         const totalAmounts = data.categoryStatistics.map((stat) => stat.totalAmount);
+
+         const backgroundColors: string[] = [];
+         const borderColors: string[] = [];
+
+         categories.forEach((category: string) => {
+            if (category === "saving") {
+               backgroundColors.push("rgba(75, 192, 192)");
+               borderColors.push("rgba(75, 192, 192)");
+            } else if (category === "expense") {
+               backgroundColors.push("rgba(255, 99, 132)");
+               borderColors.push("rgba(255, 99, 132)");
+            } else if (category === "investment") {
+               backgroundColors.push("rgba(54, 162, 235)");
+               borderColors.push("rgba(54, 162, 235)");
+            }
+         });
+
+         setChartData((prev) => ({
+            labels: categories,
+            datasets: [
+               {
+                  ...prev.datasets[0],
+                  data: totalAmounts,
+                  backgroundColor: backgroundColors,
+                  borderColor: borderColors,
+               },
+            ],
+         }));
+      }
+   }, [data]);
+
+   const [logout, { loading, client }] = useMutation(LOGOUT, {
       refetchQueries: ["GetAuthenticatedUser"],
    });
 
@@ -43,6 +75,7 @@ function HomePage() {
       try {
          await logout();
          toast.success("Logged out successfully");
+         client.resetStore(); // removing cache
       } catch (error) {
          console.log(error);
          toast.error("Failed to logout");
