@@ -5,18 +5,33 @@ import { MdLogout } from "react-icons/md";
 import TransactionForm from "../components/TransactionForm";
 import Cards from "../components/Cards";
 import toast from "react-hot-toast";
-import { useMutation, useQuery, useQuery } from "@apollo/client";
+import { useMutation, useQuery } from "@apollo/client";
 import { LOGOUT } from "../graphql/mutations/user.mutation";
 import { GET_TRANSACTION_STATISTICS } from "../graphql/queries/transaction.query";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
+import { GET_AUTH_USER } from "../graphql/queries/user.query";
 
 ChartJS.register(ArcElement, Tooltip, Legend);
 
+type ChartDataType = {
+   labels: string[];
+   datasets: {
+      label: string;
+      data: unknown[];
+      backgroundColor: string[];
+      borderColor: string[];
+      borderWidth: number;
+      borderRadius: number;
+      spacing: number;
+      cutout: number;
+   }[];
+};
+
 function HomePage() {
    const { data } = useQuery(GET_TRANSACTION_STATISTICS);
-   const { data: authUserData } = useQuery(GET_AUTHENTICATED_USER);
+   const { data: user } = useQuery(GET_AUTH_USER);
 
-   const [chartData, setChartData] = useState({
+   const [chartData, setChartData] = useState<ChartDataType>({
       labels: [],
       datasets: [
          {
@@ -34,8 +49,12 @@ function HomePage() {
 
    useEffect(() => {
       if (data?.categoryStatistics) {
-         const categories = data.categoryStatistics.map((stat: string) => stat.category);
-         const totalAmounts = data.categoryStatistics.map((stat) => stat.totalAmount);
+         const categories = data.categoryStatistics.map(
+            (stat: { category: string }) => stat.category
+         );
+         const totalAmounts = data.categoryStatistics.map(
+            (stat: { totalAmount: number }) => stat.totalAmount
+         );
 
          const backgroundColors: string[] = [];
          const borderColors: string[] = [];
@@ -90,7 +109,7 @@ function HomePage() {
                   Spend wisely, track wisely
                </p>
                <img
-                  src={"https://tecdn.b-cdn.net/img/new/avatars/2.webp"}
+                  src={user ? user?.authUser?.profilePicture : ""}
                   className="w-11 h-11 rounded-full border cursor-pointer"
                   alt="Avatar"
                />
