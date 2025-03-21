@@ -23,6 +23,12 @@ const userSchema = new mongoose.Schema(
          type: String,
          enum: ["male", "female"],
       },
+      transactions: [
+         {
+            type: mongoose.Schema.Types.ObjectId,
+            ref: "Transaction",
+         },
+      ],
    },
    { timestamps: true }
 );

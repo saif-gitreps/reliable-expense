@@ -30,6 +30,7 @@ type ChartDataType = {
 function HomePage() {
    const { data } = useQuery(GET_TRANSACTION_STATISTICS);
    const { data: user } = useQuery(GET_AUTH_USER);
+   console.log("USER:", user);
 
    const [chartData, setChartData] = useState<ChartDataType>({
       labels: [],

@@ -5,6 +5,7 @@ export const GET_AUTH_USER = gql`
       authUser {
          _id
          username
+         profilePicture
       }
    }
 `;

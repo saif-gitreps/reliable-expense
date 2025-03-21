@@ -1,5 +1,6 @@
 import User from "../models/user.model.js";
 import Transaction from "../models/transaction.model.js";
+import bcrypt from "bcryptjs";
 
 const userResolver = {
    Query: {
@@ -94,7 +95,7 @@ const userResolver = {
       },
    },
    User: {
-      transaction: async (parent, _, __) => {
+      transactions: async (parent, _, __) => {
          try {
             return await Transaction.find({
                userId: parent._id,
