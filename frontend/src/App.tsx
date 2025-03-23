@@ -8,6 +8,7 @@ import Header from "./components/Header";
 import { useQuery } from "@apollo/client";
 import { GET_AUTH_USER } from "./graphql/queries/user.query";
 import { Toaster } from "react-hot-toast";
+import History from "./pages/History";
 
 function App() {
    const { loading, data } = useQuery(GET_AUTH_USER);
@@ -21,6 +22,10 @@ function App() {
             <Route
                path="/"
                element={data.authUser ? <Home /> : <Navigate to="/login" />}
+            />
+            <Route
+               path="/history"
+               element={data.authUser ? <History /> : <Navigate to="/login" />}
             />
             <Route
                path="/login"

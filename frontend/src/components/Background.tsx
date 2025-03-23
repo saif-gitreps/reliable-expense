@@ -2,8 +2,8 @@ import React from "react";
 
 function Background({ children }: { children: React.ReactNode }) {
    return (
-      <div className="w-full bg-black text-white bg-grid-white/[0.2] relative">
-         <div className="absolute pointer-events-none inset-0 bg-black [mask-image:radial-gradient(ellipse_at_center,transparent_20%,black)]"></div>
+      <div className="w-full bg-gray-300 text-gray-700 bg-grid-white/[0.2] bg-opacity-50 relative h-screen">
+         <div className="absolute inset-0"></div>
          {children}
       </div>
    );
