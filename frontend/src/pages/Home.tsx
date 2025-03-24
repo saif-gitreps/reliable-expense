@@ -7,7 +7,7 @@ import Card, { CardProps } from "../components/Card";
 import Loading from "../components/Loading";
 
 function HomePage() {
-   const { chartData } = useHomePageChartData(115);
+   const { chartData } = useHomePageChartData(0);
    const { data, loading } = useQuery(GET_TRANSACTIONS, {
       variables: { limit: 4, sort: "1" },
    });

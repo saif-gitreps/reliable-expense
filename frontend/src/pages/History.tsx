@@ -12,7 +12,7 @@ function History() {
 
    return (
       <div>
-         <h1 className="text-center font-bold uppercase mb-3">All your transactions:</h1>
+         <h1 className="text-center font-bold uppercase mb-3">All your transactions</h1>
          {loading && <Loading />}
          <div className="w-full grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3  gap-4 justify-start mb-20">
             {!loading &&

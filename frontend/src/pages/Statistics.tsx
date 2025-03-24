@@ -1,3 +1,4 @@
+import { useMemo } from "react";
 import { useQuery } from "@apollo/client";
 import {
    BarChart,
@@ -13,22 +14,100 @@ import {
    LineChart,
    Line,
    ResponsiveContainer,
+   AreaChart,
+   Area,
+   Scatter,
+   ZAxis,
+   ScatterChart,
 } from "recharts";
-import { GET_TRANSACTION_STATISTICS } from "../graphql/queries/transaction.query";
+import {
+   GET_TRANSACTION_STATISTICS,
+   GET_TRANSACTIONS,
+} from "../graphql/queries/transaction.query";
+import formatDate from "../lib/formatDate";
+import Loading from "../components/Loading";
 
-// Color palette for charts
-const COLORS = ["#0088FE", "#00C49F", "#FFBB28", "#FF8042", "#8884D8"];
+const COLORS = [
+   "#800020", // Maroon
+   "#34568B", // Light Navy Blue
+   "#2F4F4F", // Dark Slate Gray (slightly dark green)
+   "#6B3E23", // Deep Burgundy
+   "#1B4B36", // Dark Forest Green
+];
+
+type Transaction = {
+   _id: string;
+   description: string;
+   paymentType: string;
+   category: string;
+   amount: number;
+   location: string;
+   date: string;
+   user: {
+      name: string;
+      username: string;
+      profilePicture: string;
+   };
+};
 
 function Statistics() {
-   const { loading, error, data } = useQuery(GET_TRANSACTION_STATISTICS);
+   const {
+      loading: statsLoading,
+      error: statsError,
+      data: statsData,
+   } = useQuery(GET_TRANSACTION_STATISTICS);
+   const {
+      loading: transactionsLoading,
+      error: transactionsError,
+      data: transactionsData,
+   } = useQuery(GET_TRANSACTIONS, {
+      variables: { limit: 100, sort: "-1" },
+   });
 
-   if (loading) return <div>Loading statistics...</div>;
-   if (error) return <div>Error fetching statistics: {error.message}</div>;
+   const prepareData = useMemo(() => {
+      if (!statsData || !transactionsData) return null;
 
-   const categoryStatistics = data?.categoryStatistics || [];
+      const processedTransactions = transactionsData.transactions.map(
+         (transaction: Transaction) => ({
+            ...transaction,
+            date: formatDate(transaction.date as string),
+            amount: Number(transaction.amount),
+         })
+      );
+
+      const dailyTransactions = processedTransactions.reduce(
+         (acc: { [key: string]: number }, transaction: Transaction) => {
+            acc[transaction.date] = (acc[transaction.date] || 0) + transaction.amount;
+            return acc;
+         },
+         {}
+      );
+
+      const dailyTransactionData = Object.entries(dailyTransactions)
+         .map(([date, total]) => ({
+            date,
+            total,
+         }))
+         .sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
+
+      return {
+         categoryStatistics: statsData.categoryStatistics,
+         dailyTransactionData,
+         processedTransactions,
+      };
+   }, [statsData, transactionsData]);
+
+   if (statsLoading || transactionsLoading) return <Loading />;
+   if (statsError || transactionsError) return <div>Error fetching statistics</div>;
+
+   if (!prepareData) return null;
+
+   const { categoryStatistics, dailyTransactionData, processedTransactions } =
+      prepareData;
+
    return (
-      <div className="p-6 bg-gray-100 min-h-screen rounded-xl">
-         <h1 className="text-3xl font-bold mb-6 text-center">Transaction Statistics</h1>
+      <div className="px-10 min-h-screen">
+         <h1 className="text-center font-bold uppercase mb-4">Transaction Statistics</h1>
 
          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div className="bg-white p-4 rounded-lg shadow-md">
@@ -41,7 +120,7 @@ function Statistics() {
                      <Tooltip />
                      <Legend />
                      <Bar dataKey="totalAmount" fill="#8884d8">
-                        {categoryStatistics.map((entry, index) => (
+                        {categoryStatistics.map((_: string, index: number) => (
                            <Cell
                               key={`cell-${index}`}
                               fill={COLORS[index % COLORS.length]}
@@ -52,7 +131,6 @@ function Statistics() {
                </ResponsiveContainer>
             </div>
 
-            {/* Pie Chart of Category Distribution */}
             <div className="bg-white p-4 rounded-lg shadow-md">
                <h2 className="text-xl font-semibold mb-4">Category Distribution</h2>
                <ResponsiveContainer width="100%" height={300}>
@@ -69,7 +147,7 @@ function Statistics() {
                            `${category} ${(percent * 100).toFixed(0)}%`
                         }
                      >
-                        {categoryStatistics.map((entry, index) => (
+                        {categoryStatistics.map((_: string, index: number) => (
                            <Cell
                               key={`cell-${index}`}
                               fill={COLORS[index % COLORS.length]}
@@ -79,6 +157,64 @@ function Statistics() {
                      <Tooltip />
                      <Legend />
                   </PieChart>
+               </ResponsiveContainer>
+            </div>
+
+            <div className="bg-white p-4 rounded-lg shadow-md">
+               <h2 className="text-xl font-semibold mb-4">Daily Transaction Totals</h2>
+               <ResponsiveContainer width="100%" height={300}>
+                  <LineChart data={dailyTransactionData}>
+                     <CartesianGrid strokeDasharray="3 3" />
+                     <XAxis dataKey="date" />
+                     <YAxis />
+                     <Tooltip />
+                     <Legend />
+                     <Line
+                        type="monotone"
+                        dataKey="total"
+                        stroke="#8884d8"
+                        activeDot={{ r: 8 }}
+                     />
+                  </LineChart>
+               </ResponsiveContainer>
+            </div>
+
+            <div className="bg-white p-4 rounded-lg shadow-md">
+               <h2 className="text-xl font-semibold mb-4">Cumulative Spending</h2>
+               <ResponsiveContainer width="100%" height={300}>
+                  <AreaChart data={dailyTransactionData}>
+                     <CartesianGrid strokeDasharray="3 3" />
+                     <XAxis dataKey="date" />
+                     <YAxis />
+                     <Tooltip />
+                     <Area
+                        type="monotone"
+                        dataKey="total"
+                        stroke="#8884d8"
+                        fill="#8884d8"
+                        fillOpacity={0.3}
+                     />
+                  </AreaChart>
+               </ResponsiveContainer>
+            </div>
+
+            <div className="bg-white p-4 rounded-lg shadow-md">
+               <h2 className="text-xl font-semibold mb-4">
+                  Transaction Amount Distribution
+               </h2>
+               <ResponsiveContainer width="100%" height={300}>
+                  <ScatterChart>
+                     <CartesianGrid />
+                     <XAxis type="category" dataKey="category" name="Category" />
+                     <YAxis type="number" dataKey="amount" name="Amount" />
+                     <ZAxis type="number" range={[100, 500]} />
+                     <Tooltip cursor={{ strokeDasharray: "3 3" }} />
+                     <Scatter
+                        name="Transactions"
+                        data={processedTransactions}
+                        fill="#8884d8"
+                     />
+                  </ScatterChart>
                </ResponsiveContainer>
             </div>
          </div>

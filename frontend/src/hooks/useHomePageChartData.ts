@@ -31,9 +31,9 @@ export default function useHomePageChartData(cutout?: number) {
             backgroundColor: [],
             borderColor: [],
             borderWidth: 1,
-            borderRadius: 30,
-            spacing: 10,
-            cutout: cutout ?? 130, // Default to 130 for Doughnut, but Pie will override
+            borderRadius: 1,
+            spacing: 1,
+            cutout: cutout ?? 130,
          },
       ],
    });
