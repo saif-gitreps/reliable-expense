@@ -1,12 +1,13 @@
 import { useMutation, useQuery } from "@apollo/client";
 import React, { useEffect, useState } from "react";
-import { useParams } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import {
    GET_TRANSACTION,
    GET_TRANSACTION_STATISTICS,
 } from "../graphql/queries/transaction.query";
 import { UPDATE_TRANSACTION } from "../graphql/mutations/transaction.mutation";
 import toast from "react-hot-toast";
+import Loading from "../components/Loading";
 
 function Transaction() {
    const { id } = useParams();
@@ -46,6 +47,8 @@ function Transaction() {
       }
    }, [data]);
 
+   const navigate = useNavigate();
+
    const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
       e.preventDefault();
       try {
@@ -59,6 +62,7 @@ function Transaction() {
             },
          });
          toast.success("Transaction updated successfully");
+         navigate("/");
       } catch (error) {
          console.log("Error: ", error);
          toast.error("Failed to update transaction");
@@ -75,25 +79,21 @@ function Transaction() {
       }));
    };
 
-   if (loading) return <TransactionFormSkeleton />;
+   if (loading) return <Loading />;
 
    return (
       <div className="h-screen max-w-4xl mx-auto flex flex-col items-center">
-         <p className="md:text-4xl text-2xl lg:text-4xl font-bold text-center relative z-50 mb-4 mr-4 bg-gradient-to-r from-pink-600 via-indigo-500 to-pink-400 inline-block text-transparent bg-clip-text">
-            Update this transaction
-         </p>
          <form
-            className="w-full max-w-lg flex flex-col gap-5 px-3 "
+            className="w-full max-w-lg flex flex-col gap-5 px-3"
             onSubmit={handleSubmit}
          >
-            {/* TRANSACTION */}
             <div className="flex flex-wrap">
                <div className="w-full">
                   <label
-                     className="block uppercase tracking-wide text-white text-xs font-bold mb-2"
+                     className="block uppercase tracking-wide text-gray-800 text-lg font-bold mb-2"
                      htmlFor="description"
                   >
-                     Transaction
+                     Update this transaction:
                   </label>
                   <input
                      className="appearance-none block w-full bg-gray-200 text-gray-700 border border-gray-200 rounded py-3 px-4 leading-tight focus:outline-none focus:bg-white focus:border-gray-500"
@@ -106,11 +106,11 @@ function Transaction() {
                   />
                </div>
             </div>
-            {/* PAYMENT TYPE */}
+
             <div className="flex flex-wrap gap-3">
                <div className="w-full flex-1 mb-6 md:mb-0">
                   <label
-                     className="block uppercase tracking-wide text-white text-xs font-bold mb-2"
+                     className="block uppercase tracking-wide text-gray-800 text-xs font-bold mb-2"
                      htmlFor="paymentType"
                   >
                      Payment Type
@@ -138,10 +138,9 @@ function Transaction() {
                   </div>
                </div>
 
-               {/* CATEGORY */}
                <div className="w-full flex-1 mb-6 md:mb-0">
                   <label
-                     className="block uppercase tracking-wide text-white text-xs font-bold mb-2"
+                     className="block uppercase tracking-wide text-gray-800 text-xs font-bold mb-2"
                      htmlFor="category"
                   >
                      Category
@@ -170,10 +169,9 @@ function Transaction() {
                   </div>
                </div>
 
-               {/* AMOUNT */}
                <div className="w-full flex-1 mb-6 md:mb-0">
                   <label
-                     className="block uppercase text-white text-xs font-bold mb-2"
+                     className="block uppercase text-gray-800 text-xs font-bold mb-2"
                      htmlFor="amount"
                   >
                      Amount($)
@@ -190,77 +188,54 @@ function Transaction() {
                </div>
             </div>
 
-            {/* LOCATION */}
             <div className="flex flex-wrap gap-3">
-               <div className="w-full flex-1 mb-6 md:mb-0">
-                  <label
-                     className="block uppercase tracking-wide text-white text-xs font-bold mb-2"
-                     htmlFor="location"
-                  >
-                     Location
-                  </label>
-                  <input
-                     className="appearance-none block w-full bg-gray-200 text-gray-700 border  rounded py-3 px-4 mb-3 leading-tight focus:outline-none focus:bg-white"
-                     id="location"
-                     name="location"
-                     type="text"
-                     placeholder="New York"
-                     value={formData.location}
-                     onChange={handleInputChange}
-                  />
+               <div className="flex flex-wrap gap-3">
+                  <div className="w-full flex-1 mb-6 md:mb-0">
+                     <label
+                        className="block uppercase tracking-wide text-gray-800 text-xs font-bold mb-2"
+                        htmlFor="location"
+                     >
+                        Location
+                     </label>
+                     <input
+                        className="appearance-none block w-full bg-gray-200 text-gray-700 border  rounded py-3 px-4 mb-3 leading-tight focus:outline-none focus:bg-white"
+                        id="location"
+                        name="location"
+                        type="text"
+                        placeholder="New York"
+                        value={formData.location}
+                        onChange={handleInputChange}
+                     />
+                  </div>
+
+                  <div className="w-full flex-1">
+                     <label
+                        className="block uppercase tracking-wide text-gray-800 text-xs font-bold mb-2"
+                        htmlFor="date"
+                     >
+                        Date
+                     </label>
+                     <input
+                        type="date"
+                        name="date"
+                        id="date"
+                        className="appearance-none block w-full bg-gray-200 text-gray-700 border  rounded py-[11px] px-4 mb-3 leading-tight focus:outline-none focus:bg-white"
+                        placeholder="Select date"
+                        value={formData.date}
+                        onChange={handleInputChange}
+                     />
+                  </div>
                </div>
 
-               {/* DATE */}
-               <div className="w-full flex-1">
-                  <label
-                     className="block uppercase tracking-wide text-white text-xs font-bold mb-2"
-                     htmlFor="date"
-                  >
-                     Date
-                  </label>
-                  <input
-                     type="date"
-                     name="date"
-                     id="date"
-                     className="appearance-none block w-full bg-gray-200 text-gray-700 border  rounded py-[11px] px-4 mb-3 leading-tight focus:outline-none
-						 focus:bg-white"
-                     placeholder="Select date"
-                     value={formData.date}
-                     onChange={handleInputChange}
-                  />
-               </div>
+               <button
+                  className="text-white font-bold w-full rounded px-4 py-2 bg-gradient-to-br bg-black hover:cursor-pointer disabled:opacity-70 disabled:cursor-not-allowed rounded-2xl"
+                  type="submit"
+                  disabled={loadingUpdate}
+               >
+                  {loadingUpdate ? "Updating Transaction..." : "Update Transaction"}
+               </button>
             </div>
-            {/* SUBMIT BUTTON */}
-            <button
-               className="text-white font-bold w-full rounded px-4 py-2 bg-gradient-to-br
-          from-pink-500 to-pink-500 hover:from-pink-600 hover:to-pink-600"
-               type="submit"
-               disabled={loadingUpdate}
-            >
-               {loadingUpdate ? "Updating Transaction..." : "Update"} Transaction
-            </button>
          </form>
-      </div>
-   );
-}
-
-function TransactionFormSkeleton() {
-   return (
-      <div className="h-screen max-w-xl mx-auto py-10">
-         <h3 className="h-6 bg-gray-200 rounded animate-pulse"></h3>
-
-         <ul className="mt-5 flex gap-3">
-            <li className="w-full h-6 bg-gray-200 rounded dark:bg-gray-700 animate-pulse"></li>
-            <li className="w-full h-6 bg-gray-200 rounded dark:bg-gray-700 animate-pulse"></li>
-            <li className="w-full h-6 bg-gray-200 rounded dark:bg-gray-700 animate-pulse"></li>
-         </ul>
-         <ul className="mt-5 flex gap-3">
-            <li className="w-full h-6 bg-gray-200 rounded dark:bg-gray-700 animate-pulse"></li>
-            <li className="w-full h-6 bg-gray-200 rounded dark:bg-gray-700 animate-pulse"></li>
-         </ul>
-         <ul className="mt-5 flex gap-3">
-            <li className="w-full h-6 bg-gray-200 rounded dark:bg-gray-700 animate-pulse"></li>
-         </ul>
       </div>
    );
 }

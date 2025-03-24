@@ -21,7 +21,7 @@ const Header = () => {
    };
 
    return (
-      <div className="px-3 mb-5 py-2 flex justify-between items-center relative z-50 bg-gray-200 shadow-md">
+      <div className="px-10 mb-5 py-2 flex justify-between items-center relative z-50 bg-gray-200 shadow-md">
          <h1 className="relative z-50 text-gray-700 text-2xl font-bold">
             <Link to="/" className="flex items-center gap-2">
                <Wallet size={36} className="stroke-amber-700" />

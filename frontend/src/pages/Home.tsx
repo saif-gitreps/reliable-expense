@@ -4,6 +4,7 @@ import useHomePageChartData from "../hooks/useHomePageChartData";
 import { useQuery } from "@apollo/client";
 import { GET_TRANSACTIONS } from "../graphql/queries/transaction.query";
 import Card, { CardProps } from "../components/Card";
+import Loading from "../components/Loading";
 
 function HomePage() {
    const { chartData } = useHomePageChartData(115);
@@ -29,6 +30,7 @@ function HomePage() {
                <h1 className="text-center mb-3 font-bold uppercase">
                   Recent few transactions
                </h1>
+               {loading && <Loading />}
                <div className="w-full grid grid-cols-1 md:grid-cols-2 gap-4 justify-center">
                   {!loading &&
                      data.transactions.map((transaction: CardProps["transaction"]) => (
