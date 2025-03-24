@@ -11,7 +11,7 @@ import toast from "react-hot-toast";
 function Transaction() {
    const { id } = useParams();
    const { loading, data } = useQuery(GET_TRANSACTION, {
-      variables: { id: id },
+      variables: { id },
    });
 
    console.log("Transaction", data);

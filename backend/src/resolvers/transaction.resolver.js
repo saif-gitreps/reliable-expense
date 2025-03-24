@@ -3,14 +3,21 @@ import User from "../models/user.model.js";
 
 const transactionResolver = {
    Query: {
-      transactions: async (_, __, context) => {
+      transactions: async (_, { limit, sort }, context) => {
          try {
             if (!context.getUser()) {
                throw new Error("Unauthenticated");
             }
 
             const userId = await context.getUser()._id;
-            return await Transaction.find({ userId });
+            const queryOptions = { userId };
+            const sortOptions = sort ? { [sort]: 1 } : {};
+
+            const transactions = await Transaction.find(queryOptions)
+               .sort(sortOptions)
+               .limit(limit || 0);
+
+            return transactions;
          } catch (error) {
             console.error(error);
             throw new Error(error.message || "Error while getting transactions");

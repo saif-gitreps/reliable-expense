@@ -12,7 +12,7 @@ const transactionTypeDef = `#graphql
     }
 
     type Query {
-        transactions: [Transaction!]
+        transactions(limit: Int, sort: String): [Transaction!]
         transaction(transactionId: ID!): Transaction
         categoryStatistics: [CategoryStatistics!]
     }

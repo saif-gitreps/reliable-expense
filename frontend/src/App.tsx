@@ -18,29 +18,31 @@ function App() {
    return (
       <>
          {data?.authUser && <Header />}
-         <Routes>
-            <Route
-               path="/"
-               element={data.authUser ? <Home /> : <Navigate to="/login" />}
-            />
-            <Route
-               path="/history"
-               element={data.authUser ? <History /> : <Navigate to="/login" />}
-            />
-            <Route
-               path="/login"
-               element={!data.authUser ? <Login /> : <Navigate to="/" />}
-            />
-            <Route
-               path="/signup"
-               element={!data.authUser ? <SignUp /> : <Navigate to="/" />}
-            />
-            <Route
-               path="/transaction/:id"
-               element={data.authUser ? <Transaction /> : <Navigate to="/login" />}
-            />
-            <Route path="*" element={<_404 />} />
-         </Routes>
+         <div className="p-8">
+            <Routes>
+               <Route
+                  path="/"
+                  element={data.authUser ? <Home /> : <Navigate to="/login" />}
+               />
+               <Route
+                  path="/history"
+                  element={data.authUser ? <History /> : <Navigate to="/login" />}
+               />
+               <Route
+                  path="/login"
+                  element={!data.authUser ? <Login /> : <Navigate to="/" />}
+               />
+               <Route
+                  path="/signup"
+                  element={!data.authUser ? <SignUp /> : <Navigate to="/" />}
+               />
+               <Route
+                  path="/transaction/:id"
+                  element={data.authUser ? <Transaction /> : <Navigate to="/login" />}
+               />
+               <Route path="*" element={<_404 />} />
+            </Routes>
+         </div>
          <Toaster />
       </>
    );

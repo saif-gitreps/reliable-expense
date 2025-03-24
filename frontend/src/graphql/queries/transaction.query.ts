@@ -1,8 +1,8 @@
 import { gql } from "@apollo/client";
 
 export const GET_TRANSACTIONS = gql`
-   query GetTransactions {
-      transactions {
+   query GetTransactions($limit: Int, $sort: String) {
+      transactions(limit: $limit, sort: $sort) {
          _id
          description
          paymentType
